@@ -441,17 +441,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     data = await fetchSpotifyCurrentlyPlaying(timeoutMs);
                 }
 
+                const cardLink = widget.querySelector('.card-main-link') || widget;
                 if (data && data.isPlaying) {
                     trackName.textContent = cleanSongTitle(data.title);
                     artistName.textContent = data.artist;
-                    widget.href = data.link || '#';
+                    if (cardLink) cardLink.href = data.link || '#';
                     widget.classList.add('active');
-                    widget.style.display = 'flex';
+                    widget.style.display = 'block';
                     window.isSpotifyPlaying = true;
                 } else {
                     trackName.textContent = '';
                     artistName.textContent = '';
-                    widget.href = '#';
+                    if (cardLink) cardLink.href = '#';
                     widget.classList.remove('active');
                     widget.style.display = 'none';
                     window.isSpotifyPlaying = false;
@@ -760,9 +761,20 @@ document.addEventListener('DOMContentLoaded', () => {
     function initLiveStatusBar() {
         const statusBar = document.getElementById('live-status-bar');
         const statusText = document.getElementById('live-status-text');
-        const statusIcon = document.getElementById('live-status-icon') || statusBar.querySelector('.live-dot, .live-icon');
+        const statusIcon = document.getElementById('live-status-icon') || statusBar?.querySelector('.live-dot, .live-icon');
 
         if (!statusBar || !statusText) return;
+
+        // Clicking the status pill navigates to the Availability calendar
+        statusBar.addEventListener('click', () => {
+            window.location.href = 'https://schedule.astrong.xyz/availability/';
+        });
+        statusBar.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                window.location.href = 'https://schedule.astrong.xyz/availability/';
+            }
+        });
 
         const apiKey = 'AIzaSyBIwrZ7LnEPCEGs5CM_Pq61YtGZ3jHVQHY';
         const calendarId = 'dolphin.kden@gmail.com';
