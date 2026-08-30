@@ -699,7 +699,10 @@ document.addEventListener('DOMContentLoaded', () => {
             settingsModal.setAttribute('aria-hidden', 'true');
         }
 
-        settingsBtn.addEventListener('click', openModal);
+        window.openSettingsModal = openModal;
+        window.closeSettingsModal = closeModal;
+
+        if (settingsBtn) settingsBtn.addEventListener('click', openModal);
         if (closeBtn) closeBtn.addEventListener('click', closeModal);
         if (overlay) overlay.addEventListener('click', closeModal);
 
@@ -753,10 +756,188 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 3. Initialize Modals & Live Status Bar
+    // 3. Initialize Modals, Live Status Bar, and Card Pill Scrolling
     initHelpModal();
     initSettingsModal();
     initLiveStatusBar();
+    initCardPillScroll();
+
+    function initCardPillScroll() {
+        const pillContainers = document.querySelectorAll('.card-quick-links');
+        if (!pillContainers.length) return;
+
+        pillContainers.forEach(container => {
+            let targetScroll = container.scrollLeft;
+            let currentScroll = container.scrollLeft;
+            let isAnimating = false;
+            let isDown = false;
+            let startX = 0;
+            let scrollStart = 0;
+            let hasDragged = false;
+            let lastX = 0;
+            let lastTime = 0;
+            let velocityX = 0;
+            let rafId = null;
+
+            const updateOverflowMask = () => {
+                const scrollLeft = container.scrollLeft;
+                const scrollWidth = container.scrollWidth;
+                const clientWidth = container.clientWidth;
+
+                if (scrollWidth <= clientWidth + 2) {
+                    container.removeAttribute('data-overflow');
+                    return;
+                }
+
+                const atStart = scrollLeft <= 2;
+                const atEnd = scrollLeft + clientWidth >= scrollWidth - 2;
+
+                if (atStart && !atEnd) {
+                    container.setAttribute('data-overflow', 'right');
+                } else if (!atStart && atEnd) {
+                    container.setAttribute('data-overflow', 'left');
+                } else if (!atStart && !atEnd) {
+                    container.setAttribute('data-overflow', 'both');
+                } else {
+                    container.removeAttribute('data-overflow');
+                }
+            };
+
+            const animateScroll = () => {
+                if (isDown) {
+                    isAnimating = false;
+                    return;
+                }
+
+                const maxScroll = Math.max(0, container.scrollWidth - container.clientWidth);
+                targetScroll = Math.max(0, Math.min(targetScroll, maxScroll));
+                
+                const diff = targetScroll - currentScroll;
+                if (Math.abs(diff) > 0.4) {
+                    currentScroll += diff * 0.16;
+                    container.scrollLeft = currentScroll;
+                    updateOverflowMask();
+                    rafId = requestAnimationFrame(animateScroll);
+                    isAnimating = true;
+                } else {
+                    currentScroll = targetScroll;
+                    container.scrollLeft = targetScroll;
+                    updateOverflowMask();
+                    isAnimating = false;
+                }
+            };
+
+            const startSmoothScroll = (newTarget) => {
+                const maxScroll = Math.max(0, container.scrollWidth - container.clientWidth);
+                targetScroll = Math.max(0, Math.min(newTarget, maxScroll));
+                currentScroll = container.scrollLeft;
+                if (!isAnimating) {
+                    rafId = requestAnimationFrame(animateScroll);
+                    isAnimating = true;
+                }
+            };
+
+            // Smart Wheel Scrolling with smooth interpolation & boundary pass-through
+            container.addEventListener('wheel', (e) => {
+                const rawDelta = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+                if (rawDelta === 0) return;
+
+                const maxScroll = Math.max(0, container.scrollWidth - container.clientWidth);
+                if (maxScroll <= 0) return;
+
+                const current = isAnimating ? targetScroll : container.scrollLeft;
+                const atStart = current <= 0;
+                const atEnd = current >= maxScroll;
+
+                if ((rawDelta > 0 && !atEnd) || (rawDelta < 0 && !atStart)) {
+                    e.preventDefault();
+                    const step = Math.sign(rawDelta) * Math.min(Math.abs(rawDelta), 140);
+                    startSmoothScroll((isAnimating ? targetScroll : container.scrollLeft) + step);
+                }
+            }, { passive: false });
+
+            // Desktop Click-and-Drag / Grab-to-Scroll Support with Momentum
+            container.addEventListener('pointerdown', (e) => {
+                if (e.button !== 0) return;
+                isDown = true;
+                if (isAnimating) {
+                    cancelAnimationFrame(rafId);
+                    isAnimating = false;
+                }
+                startX = e.pageX;
+                lastX = e.pageX;
+                lastTime = performance.now();
+                velocityX = 0;
+                scrollStart = container.scrollLeft;
+                currentScroll = container.scrollLeft;
+                targetScroll = container.scrollLeft;
+                hasDragged = false;
+            });
+
+            window.addEventListener('pointermove', (e) => {
+                if (!isDown) return;
+                const now = performance.now();
+                const dt = Math.max(now - lastTime, 1);
+                const moveDx = e.pageX - lastX;
+                velocityX = moveDx / dt;
+                lastX = e.pageX;
+                lastTime = now;
+
+                const dx = e.pageX - startX;
+                if (Math.abs(dx) > 4) {
+                    hasDragged = true;
+                    container.classList.add('is-dragging');
+                }
+                container.scrollLeft = scrollStart - dx;
+                currentScroll = container.scrollLeft;
+                targetScroll = container.scrollLeft;
+                updateOverflowMask();
+            });
+
+            const endDrag = () => {
+                if (!isDown) return;
+                isDown = false;
+                container.classList.remove('is-dragging');
+
+                if (hasDragged) {
+                    setTimeout(() => {
+                        hasDragged = false;
+                    }, 50);
+
+                    // Apply momentum on release if flicked
+                    if (Math.abs(velocityX) > 0.12) {
+                        const momentum = -velocityX * 160;
+                        startSmoothScroll(container.scrollLeft + momentum);
+                    }
+                }
+            };
+
+            window.addEventListener('pointerup', endDrag);
+            window.addEventListener('pointercancel', endDrag);
+
+            // Prevent link trigger on drag & disable native drag
+            container.querySelectorAll('.quick-chip').forEach(chip => {
+                chip.addEventListener('dragstart', (e) => e.preventDefault());
+                chip.addEventListener('click', (e) => {
+                    if (hasDragged) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                });
+            });
+
+            container.addEventListener('scroll', () => {
+                if (!isAnimating && !isDown) {
+                    currentScroll = container.scrollLeft;
+                    targetScroll = container.scrollLeft;
+                }
+                updateOverflowMask();
+            }, { passive: true });
+
+            window.addEventListener('resize', updateOverflowMask);
+            updateOverflowMask();
+        });
+    }
 
     function initLiveStatusBar() {
         const statusBar = document.getElementById('live-status-bar');
@@ -1057,7 +1238,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const closeBtn = document.getElementById('help-close-btn');
         const overlay = helpModal ? helpModal.querySelector('.help-modal-overlay') : null;
 
-        if (!helpBtn || !helpModal) return;
+        if (!helpModal) return;
 
         function openModal() {
             helpModal.classList.add('active');
@@ -1069,7 +1250,10 @@ document.addEventListener('DOMContentLoaded', () => {
             helpModal.setAttribute('aria-hidden', 'true');
         }
 
-        helpBtn.addEventListener('click', openModal);
+        window.openHelpModal = openModal;
+        window.closeHelpModal = closeModal;
+
+        if (helpBtn) helpBtn.addEventListener('click', openModal);
         if (closeBtn) closeBtn.addEventListener('click', closeModal);
         if (overlay) overlay.addEventListener('click', closeModal);
 

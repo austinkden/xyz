@@ -620,20 +620,20 @@ body.mobile-drawer-open .mobile-drawer {
 .live-status-bar[data-status="at-school"] .live-icon { color: #3b82f6; }
 .live-status-bar[data-status="unavailable"] .live-icon { color: #ef4444; }
 .live-status-bar[data-status="busy"] .live-icon { color: #f59e0b; }
-.live-status-bar[data-status="listening"] .live-icon { color: #1db954; }
+.live-status-bar[data-status="listening"] .live-icon { color: #8859ff; }
 .live-status-bar[data-status="available"] .live-icon { color: #22c55e; }
 
 /* Spotify Live Card Specifics (Extends .portal-card) */
 .spotify-card .card-icon {
-    color: #1db954;
+    color: #8859ff;
 }
 
 .spotify-card:hover {
-    border-color: #1db954;
+    border-color: #8859ff;
 }
 
 .spotify-card:hover .card-text h2 {
-    color: #1db954;
+    color: #8859ff;
 }
 
 .spotify-equalizer {
@@ -649,7 +649,7 @@ body.mobile-drawer-open .mobile-drawer {
 .eq-bar {
     width: 3px;
     height: 100%;
-    background-color: #1db954;
+    background-color: #8859ff;
     border-radius: 1.5px;
     animation: eq-bounce 1s ease-in-out infinite alternate;
 }
@@ -682,7 +682,7 @@ body.mobile-drawer-open .mobile-drawer {
 /* Grid Layout for Portals */
 .portal-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1.25rem;
     width: 100%;
 }
@@ -696,6 +696,9 @@ body.mobile-drawer-open .mobile-drawer {
     display: flex;
     flex-direction: column;
     gap: 1.1rem;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
     transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
@@ -803,12 +806,49 @@ body.mobile-drawer-open .mobile-drawer {
     position: relative;
     z-index: 2;
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    align-items: center;
     gap: 0.45rem;
     padding-top: 0.45rem;
+    padding-bottom: 2px;
     border-top: 1px solid var(--outline, rgba(255, 255, 255, 0.06));
-    max-height: calc(1px + 0.45rem + 28px * 2 + 0.45rem);
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.card-quick-links::-webkit-scrollbar {
+    display: none;
+}
+
+.card-quick-links:active,
+.card-quick-links.is-dragging {
+    cursor: grabbing;
+}
+
+.card-quick-links[data-overflow="right"] {
+    mask-image: linear-gradient(to right, black calc(100% - 24px), transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, black calc(100% - 24px), transparent 100%);
+}
+
+.card-quick-links[data-overflow="both"] {
+    mask-image: linear-gradient(to right, transparent 0, black 24px, black calc(100% - 24px), transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0, black 24px, black calc(100% - 24px), transparent 100%);
+}
+
+.card-quick-links[data-overflow="left"] {
+    mask-image: linear-gradient(to right, transparent 0, black 24px, black 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0, black 24px, black 100%);
 }
 
 .quick-chip {
@@ -828,6 +868,8 @@ body.mobile-drawer-open .mobile-drawer {
     transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
     user-select: none;
     -webkit-user-select: none;
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .quick-chip svg {
@@ -850,7 +892,7 @@ body.mobile-drawer-open .mobile-drawer {
 
 @media (max-width: 768px) {
     .portal-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
         gap: 0.85rem;
     }
 
