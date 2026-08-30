@@ -1,4 +1,11 @@
 
+console.log('hiii');
+
+// Prevent 'Confirm Form Resubmission' dialog on page reload
+if (window.history && window.history.replaceState) {
+    window.history.replaceState(null, null, window.location.href);
+}
+
 // Spotify API Integration Configuration
 const SPOTIFY_CONFIG = {
     // Mode 1: Secure Cloudflare Worker URL (Highly Recommended)
