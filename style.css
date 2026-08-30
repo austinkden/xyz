@@ -632,10 +632,6 @@ body.mobile-drawer-open .mobile-drawer {
     border-color: #8859ff;
 }
 
-.spotify-card:hover .card-text h2 {
-    color: #8859ff;
-}
-
 .spotify-equalizer {
     display: flex;
     align-items: flex-end;
