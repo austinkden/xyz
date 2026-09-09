@@ -89,7 +89,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const shapes = [
         'four-sided-cookie',
-        'pentagon',
         'six-sided-cookie',
         'nine-sided-cookie',
         'sunny',
@@ -863,8 +862,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }, { passive: false });
 
-            // Desktop Click-and-Drag / Grab-to-Scroll Support with Momentum
+            // Smooth Native Scrolling for Touch & Desktop Click-and-Drag Support
+            container.addEventListener('scroll', () => {
+                if (!isAnimating && !isDown) {
+                    currentScroll = container.scrollLeft;
+                    targetScroll = container.scrollLeft;
+                    updateOverflowMask();
+                }
+            }, { passive: true });
+
             container.addEventListener('pointerdown', (e) => {
+                if (e.pointerType === 'touch') return; // Let mobile devices use smooth native composited scrolling
                 if (e.button !== 0) return;
                 isDown = true;
                 if (isAnimating) {
@@ -1011,19 +1019,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     continue;
                 }
 
+                const isFree = event.transparency === 'transparent';
+                if (isFree) continue;
+
                 const summary = (event.summary || '').trim().toLowerCase();
-                const isStarbucks = summary.includes('starbucks shift') || summary.includes('starbucks');
-                const isSchool = summary.includes('school');
+                const isStarbucks = summary.includes('starbucks shift') || summary.includes('starbucks') || summary.includes('work');
+                const isSchool = event.__isFromSchoolCalendar || summary.includes('school') || (event.organizer && event.organizer.email && event.organizer.email.includes('school'));
                 const isCalendarBlock = summary.includes('calendar block');
-                const isBusy = event.transparency !== 'transparent';
+                const isUnavailable = isCalendarBlock || summary.includes('unavailable');
 
                 if (isStarbucks) {
                     events.push({ type: 'at-work', start, end });
                 } else if (isSchool) {
                     events.push({ type: 'at-school', start, end });
-                } else if (isCalendarBlock && isBusy) {
+                } else if (isUnavailable) {
                     events.push({ type: 'unavailable', start, end });
-                } else if (isBusy) {
+                } else {
                     events.push({ type: 'busy', start, end });
                 }
             }
@@ -1185,7 +1196,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     if (res2.status === 'fulfilled' && res2.value.ok) {
                         const data2 = await res2.value.json();
-                        if (data2.items) combinedItems.push(...data2.items);
+                        if (data2.items) {
+                            data2.items.forEach(it => { it.__isFromSchoolCalendar = true; });
+                            combinedItems.push(...data2.items);
+                        }
                     }
 
                     if (combinedItems.length > 0) {

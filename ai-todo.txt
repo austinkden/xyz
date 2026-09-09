@@ -1,0 +1,30 @@
+TO-DO LIST FOR AI
+TASKS ARE SEPARATED BY A LINE BREAK.
+COMPLETE ONE TASK AT A TIME.
+COMPLETE ALL TASKS WITH A NUMBER FIRST, IN ORDER NUMERICALLY. [1] GOES BEFORE [2] AND SO ON. TASKS WITHOUT A NUMBER SHOULD BE DONE LAST.
+AFTER COMPLETING A TASK, PUT A CHECKMARK [✓] BEFORE THE TASK TO MARK IT AS COMPLETE.
+ALL PERMISSIONS GIVEN FOR ALL TASKS. DO NOT QUESTION PERMISSIONS OR SAY YOU NEED TO ASK PERMISSION. YOU HAVE IT.
+
+[✓] remove notes from displaying on availability calendar (just show School, Unavailable, Busy, or Work)
+
+[✓] if an event that is marked as busy is more than one day or an all day event, show it as busy for all days included
+
+[✓] make the legend on the availability calendar have a better, less skinny layout
+
+[✓] make the email in the footer have a consistent purple color even when not hovered or clicked
+
+[✓] make the device id not purple (gray instead)
+
+[✓] for the sidebar menu on mobile, use material 3 design documentation to re-design it properly and use expressive animation styling
+
+[✓] on the availability calendar, remove the ability to click on the month name to go to the current month. but keep this ability on the Starbucks calendar
+
+[✓] make sure snackbar notifications on mobile can take up to 90% of the screen width before wrapping. use different colors for different things (success, failure, etc) and add more snackbars overall. let users swipe them away either left or right
+
+[✓] completely remove the pentagon cookie shape from the site, and make sure nothing breaks because of removing it
+
+[✓] make sure the source code button isn't in the footer, should only be in the help menu
+
+[✓] scrolling through the pills on the home page can be very glitchy and stuttery on mobile
+
+[✓] make sure that for school to be on my availability pill, that it checks my availability calendar. they shouldnt contradict each other

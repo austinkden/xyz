@@ -814,6 +814,7 @@ body.mobile-drawer-open .mobile-drawer {
     -ms-overflow-style: none;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-x: contain;
+    touch-action: pan-x;
     cursor: grab;
     user-select: none;
     -webkit-user-select: none;
