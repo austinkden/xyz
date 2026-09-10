@@ -41,7 +41,7 @@ img {
     background: var(--highlight-bg);
 }
 
-/* Custom Scrollbars */
+/* Custom Scrollbars - Theme Responsive & Rounded */
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -52,18 +52,43 @@ img {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.16);
-    border-radius: 4px;
+    background: color-mix(in srgb, var(--on-surface, #e6e1e5) 18%, transparent);
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    transition: background-color 0.2s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--primary);
+    background: var(--primary, #8859ff);
+    border: 1px solid transparent;
+    background-clip: padding-box;
+}
+
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+:root.light-mode ::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--on-surface, #1d1b20) 22%, transparent);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
+:root.light-mode ::-webkit-scrollbar-thumb:hover {
+    background: var(--primary, #8859ff);
+    border: 1px solid transparent;
+    background-clip: padding-box;
 }
 
 /* Firefox Support */
 * {
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.16) transparent;
+    scrollbar-color: color-mix(in srgb, var(--on-surface, #e6e1e5) 18%, transparent) transparent;
+}
+
+:root.light-mode * {
+    scrollbar-color: color-mix(in srgb, var(--on-surface, #1d1b20) 22%, transparent) transparent;
 }
 
 .pfp-wrapper,
@@ -1529,7 +1554,7 @@ kbd, code, pre {
     height: 38px;
     background-color: var(--surface);
     border-radius: 20px;
-    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.25s ease;
+    transition: transform 0.35s cubic-bezier(0.34, 1.4, 0.64, 1), background-color 0.25s ease;
     z-index: 1;
 }
 
@@ -1657,7 +1682,7 @@ kbd, code, pre {
     height: 22px;
     border-radius: 50%;
     background-color: var(--on-surface);
-    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease;
+    transition: transform 0.35s cubic-bezier(0.34, 1.4, 0.64, 1), background-color 0.2s ease;
 }
 
 .motion-toggle-pill[data-active="true"] .toggle-pill-thumb {
