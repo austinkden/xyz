@@ -1,15 +1,15 @@
-
-console.log('hiii');
-
 // Prevent 'Confirm Form Resubmission' dialog on page reload
 if (window.history && window.history.replaceState) {
     window.history.replaceState(null, null, window.location.href);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('%c[astrong.xyz]%c Homepage initialized', 'color: #8859ff; font-weight: bold;', 'color: inherit;');
+
     // Dynamic Autonomous Random Floating Accent Bubble with Edge-Distance Brightness
     const ambientBubble = document.querySelector('.ambient-bubble');
     if (ambientBubble) {
+        console.log('[Ambient Bubble] Autonomous accent bubble animation initialized');
         const getRandomWaypoint = () => {
             const w = window.innerWidth;
             const h = window.innerHeight;
@@ -360,202 +360,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-    function initThemeSwitcher() {
-        const accentSelect = document.getElementById('accent-select');
-        if (!accentSelect) return;
-
-        const trigger = accentSelect.querySelector('.select-trigger');
-        const triggerText = accentSelect.querySelector('.select-trigger-text');
-        const optionsEl = accentSelect.querySelector('.select-options');
-        const options = accentSelect.querySelectorAll('.select-option');
-
-        const savedAccent = localStorage.getItem('astrong_accent') || 'purple';
-        const savedMode = localStorage.getItem('astrong_mode') || 'dark';
-
-        const updateWhiteOptionLabel = (mode) => {
-            const whiteOption = accentSelect.querySelector('.option-white');
-            if (whiteOption) {
-                whiteOption.textContent = mode === 'light' ? 'Black' : 'White';
-            }
-        };
-
-        // Initialize label first
-        updateWhiteOptionLabel(savedMode);
-
-        // Set initial selected value text and active style
-        const activeOption = accentSelect.querySelector(`.select-option[data-value="${savedAccent}"]`);
-        if (activeOption) {
-            triggerText.textContent = activeOption.textContent;
-            triggerText.style.color = window.getComputedStyle(activeOption).color;
-            activeOption.classList.add('selected');
-        }
-
-        // Move the options panel to document.body so it escapes overflow clipping
-        document.body.appendChild(optionsEl);
-        optionsEl.style.position = 'fixed';
-        optionsEl.style.zIndex = '99999';
-
-        function positionDropdown() {
-            const rect = trigger.getBoundingClientRect();
-            optionsEl.style.top = (rect.bottom + 6) + 'px';
-            optionsEl.style.left = rect.left + 'px';
-            optionsEl.style.width = rect.width + 'px';
-        }
-
-        let isOpen = false;
-
-        function openDropdown() {
-            isOpen = true;
-            accentSelect.classList.add('open');
-            optionsEl.style.display = 'flex';
-            optionsEl.style.flexDirection = 'column';
-            positionDropdown();
-        }
-
-        function closeDropdown() {
-            isOpen = false;
-            accentSelect.classList.remove('open');
-            optionsEl.style.display = 'none';
-        }
-
-        // Toggle open/close on click
-        trigger.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (isOpen) {
-                closeDropdown();
-            } else {
-                openDropdown();
-            }
-        });
-
-        // Click handler for options
-        options.forEach(option => {
-            option.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const themeName = option.getAttribute('data-value');
-
-                options.forEach(opt => opt.classList.remove('selected'));
-                option.classList.add('selected');
-
-                triggerText.textContent = option.textContent;
-                triggerText.style.color = window.getComputedStyle(option).color;
-
-                localStorage.setItem('astrong_accent', themeName);
-                const currentMode = localStorage.getItem('astrong_mode') || 'dark';
-
-                if (window.applyTheme) {
-                    window.applyTheme(themeName, currentMode);
-                }
-
-                closeDropdown();
-            });
-        });
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!trigger.contains(e.target) && !optionsEl.contains(e.target)) {
-                closeDropdown();
-            }
-        });
-
-        // Reposition on scroll/resize
-        window.addEventListener('scroll', () => { if (isOpen) positionDropdown(); }, true);
-        window.addEventListener('resize', () => { if (isOpen) positionDropdown(); });
-    }
-
-    function initSettingsModal() {
-        const settingsBtn = document.getElementById('settings-btn');
-        const settingsModal = document.getElementById('settings-modal');
-        const closeBtn = document.getElementById('settings-close-btn');
-        const overlay = settingsModal ? settingsModal.querySelector('.settings-modal-overlay') : null;
-        const themeTogglePill = document.getElementById('theme-toggle-pill');
-
-        if (!settingsBtn || !settingsModal) return;
-
-        function openModal() {
-            settingsModal.classList.add('active');
-            settingsModal.setAttribute('aria-hidden', 'false');
-            
-            // Re-update select trigger color to ensure it matches active stylesheet variables
-            const savedAccent = localStorage.getItem('astrong_accent') || 'purple';
-            const activeOption = document.querySelector(`#accent-select .select-option[data-value="${savedAccent}"]`);
-            const triggerText = document.querySelector('#accent-select .select-trigger-text');
-            if (activeOption && triggerText) {
-                triggerText.style.color = window.getComputedStyle(activeOption).color;
-            }
-        }
-
-        function closeModal() {
-            settingsModal.classList.remove('active');
-            settingsModal.setAttribute('aria-hidden', 'true');
-        }
-
-        window.openSettingsModal = openModal;
-        window.closeSettingsModal = closeModal;
-
-        if (settingsBtn) settingsBtn.addEventListener('click', openModal);
-        if (closeBtn) closeBtn.addEventListener('click', closeModal);
-        if (overlay) overlay.addEventListener('click', closeModal);
-
-        // Escape key to close the modal
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                if (settingsModal.classList.contains('active')) {
-                    closeModal();
-                    e.stopImmediatePropagation();
-                }
-            }
-        }, true);
-
-        // Initialize theme-toggle-pill state
-        const savedMode = localStorage.getItem('astrong_mode') || 'dark';
-        if (themeTogglePill) {
-            themeTogglePill.setAttribute('data-active', savedMode);
-
-            themeTogglePill.addEventListener('click', () => {
-                const currentMode = localStorage.getItem('astrong_mode') || 'dark';
-                const nextMode = currentMode === 'dark' ? 'light' : 'dark';
-                
-                localStorage.setItem('astrong_mode', nextMode);
-                themeTogglePill.setAttribute('data-active', nextMode);
-
-                // Apply theme changes
-                const savedAccent = localStorage.getItem('astrong_accent') || 'purple';
-                if (window.applyTheme) {
-                    window.applyTheme(savedAccent, nextMode);
-                }
-
-                // Update the white option label dynamically
-                const accentSelect = document.getElementById('accent-select');
-                if (accentSelect) {
-                    const whiteOption = accentSelect.querySelector('.option-white');
-                    if (whiteOption) {
-                        whiteOption.textContent = nextMode === 'light' ? 'Black' : 'White';
-                    }
-                }
-
-                // Update trigger text and color if dropdown exists (e.g. white/black changes text and color)
-                const activeOption = document.querySelector(`#accent-select .select-option[data-value="${savedAccent}"]`);
-                const triggerText = document.querySelector('#accent-select .select-trigger-text');
-                if (activeOption && triggerText) {
-                    triggerText.textContent = activeOption.textContent;
-                    setTimeout(() => {
-                        triggerText.style.color = window.getComputedStyle(activeOption).color;
-                    }, 50);
-                }
-            });
-        }
-    }
-
-    // 3. Initialize Modals, Live Status Bar, and Card Pill Scrolling
-    initHelpModal();
-    initSettingsModal();
+    // 3. Initialize Live Status Bar and Card Pill Scrolling
     initLiveStatusBar();
     initCardPillScroll();
 
     function initCardPillScroll() {
         const pillContainers = document.querySelectorAll('.card-quick-links');
         if (!pillContainers.length) return;
+        console.log(`[Quick Links] Drag-and-scroll initialized for ${pillContainers.length} chip carousel(s)`);
 
         pillContainers.forEach(container => {
             let targetScroll = container.scrollLeft;
@@ -745,6 +557,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const statusIcon = document.getElementById('live-status-icon') || statusBar?.querySelector('.live-dot, .live-icon');
 
         if (!statusBar || !statusText) return;
+        console.log('[Live Status] Live status pill component initialized');
 
         // Clicking the status pill navigates to the Availability calendar
         statusBar.addEventListener('click', () => {
@@ -990,8 +803,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (combinedItems.length > 0) {
                         events = parseCalendarEvents(combinedItems);
                         apiSuccess = true;
+                        console.log(`[Live Status] Google Calendar API: ${combinedItems.length} raw events loaded (${events.length} parsed)`);
                     }
                 } catch (err) {
+                    console.warn('[Live Status] Google Calendar API direct fetch failed, falling back to proxy:', err);
                     try {
                         const proxyUrl = `/api/calendar?calendarId=${encodeURIComponent(calendarId)}`;
                         const proxyRes = await fetch(proxyUrl);
@@ -1000,14 +815,18 @@ document.addEventListener('DOMContentLoaded', () => {
                             if (proxyData.items) {
                                 events = parseCalendarEvents(proxyData.items);
                                 apiSuccess = true;
+                                console.log(`[Live Status] Serverless Calendar Proxy: ${events.length} events loaded`);
                             }
                         }
-                    } catch (proxyErr) {}
+                    } catch (proxyErr) {
+                        console.warn('[Live Status] Serverless Calendar Proxy fetch failed:', proxyErr);
+                    }
                 }
             }
 
             if (!apiSuccess) {
                 events = parseFallbackEvents(now);
+                console.log(`[Live Status] Loaded local fallback Starbucks schedule (${events.length} event(s))`);
             }
 
             cachedEvents = events;
@@ -1015,12 +834,18 @@ document.addEventListener('DOMContentLoaded', () => {
             return cachedEvents;
         }
 
+        let lastLoggedStatusKey = null;
         async function fetchCalendarStatus(force = false) {
             if (force) lastFetchTime = 0;
             const now = new Date();
             const events = await fetchCalendarEvents(now);
             const result = evaluateStatusFromEvents(events, now);
             updateUI(result.status, result.label);
+            const statusKey = `${result.status}:${result.label.split(' for another ')[0]}`;
+            if (lastLoggedStatusKey !== statusKey) {
+                lastLoggedStatusKey = statusKey;
+                console.log(`[Live Status] Current status: "${result.label}" (state: ${result.status})`);
+            }
         }
 
         window.updateLiveStatus = () => fetchCalendarStatus(true);
@@ -1036,41 +861,5 @@ document.addEventListener('DOMContentLoaded', () => {
         const initialNow = new Date();
         const initialDelay = 1000 - initialNow.getMilliseconds();
         setTimeout(scheduleNextAlignedUpdate, initialDelay);
-    }
-
-    function initHelpModal() {
-        const helpBtn = document.getElementById('help-btn');
-        const helpModal = document.getElementById('help-modal');
-        const closeBtn = document.getElementById('help-close-btn');
-        const overlay = helpModal ? helpModal.querySelector('.help-modal-overlay') : null;
-
-        if (!helpModal) return;
-
-        function openModal() {
-            helpModal.classList.add('active');
-            helpModal.setAttribute('aria-hidden', 'false');
-        }
-
-        function closeModal() {
-            helpModal.classList.remove('active');
-            helpModal.setAttribute('aria-hidden', 'true');
-        }
-
-        window.openHelpModal = openModal;
-        window.closeHelpModal = closeModal;
-
-        if (helpBtn) helpBtn.addEventListener('click', openModal);
-        if (closeBtn) closeBtn.addEventListener('click', closeModal);
-        if (overlay) overlay.addEventListener('click', closeModal);
-
-        // Escape key to close the modal, using capture phase to run before universal.js back action
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                if (helpModal.classList.contains('active')) {
-                    closeModal();
-                    e.stopImmediatePropagation();
-                }
-            }
-        }, true);
     }
 });
