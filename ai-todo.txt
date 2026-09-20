@@ -5,6 +5,3 @@ COMPLETE ALL TASKS WITH A NUMBER FIRST, IN ORDER NUMERICALLY. [1] GOES BEFORE [2
 AFTER COMPLETING A TASK, PUT A CHECKMARK [✓] BEFORE THE TASK TO MARK IT AS COMPLETE.
 ALL PERMISSIONS GIVEN FOR ALL TASKS. DO NOT QUESTION PERMISSIONS OR SAY YOU NEED TO ASK PERMISSION. YOU HAVE IT.
 
-[✓] - On the school schedule page, the icon at the top randomly rotates, which it shouldn't. Also, the icon itself rotates which it shouldn't at all.
-[✓] - On the school schedule page, the back button in the top left is on the line that separates the header from the page.
-[✓] - Make sure the back button on EVERY SINGLE PAGE has enough spacing between the header separation line and the back button itself. the spacing should be the same between astrong.xyz and the line as the line and the back button
