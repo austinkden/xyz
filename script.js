@@ -71,298 +71,171 @@ document.addEventListener('DOMContentLoaded', () => {
         requestAnimationFrame(updateBubble);
     }
 
-    // 1. Handle shape cycling and reversing the rotation of the cookie
-    const wrapper = document.querySelector('.pfp-wrapper');
-    const img = document.querySelector('.pfp-wrapper img');
+    // Initialize Homepage Features
+    initLiveStatusBar();
+    initCardPillScroll();
+    initEmergenciesModal();
+    initHeaderModalFallbacks();
 
-    const shapes = [
-        'four-sided-cookie',
-        'six-sided-cookie',
-        'nine-sided-cookie',
-        'sunny',
-        'twelve-sided-cookie'
-    ];
+    function initHeaderModalFallbacks() {
+        const searchBtn = document.getElementById('search-btn');
+        const settingsBtn = document.getElementById('settings-btn');
+        const helpBtn = document.getElementById('help-btn');
 
-    if (false && wrapper && img) {
-        // Pre-sample and align points for all shapes
-        const numPoints = 120;
-        const shapePoints = {};
-        let currentShapeIndex = 2; // Default to 'nine-sided-cookie'
-
-        const alignPoints = (points) => {
-            let minD = Infinity;
-            let startIdx = 0;
-            points.forEach((p, idx) => {
-                const dx = p.x - 0.5;
-                const dy = p.y - 0.0;
-                const d = dx * dx + dy * dy;
-                if (d < minD) {
-                    minD = d;
-                    startIdx = idx;
+        if (searchBtn && !searchBtn.dataset.homeFallbackBound) {
+            searchBtn.dataset.homeFallbackBound = 'true';
+            searchBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (typeof window.openCommandPalette === 'function') {
+                    window.openCommandPalette();
+                } else if (typeof window.toggleCommandPalette === 'function') {
+                    window.toggleCommandPalette();
+                } else {
+                    const cp = document.getElementById('astrong-cmd-palette') || document.querySelector('.cmd-palette-modal');
+                    if (cp) {
+                        cp.classList.add('active');
+                        cp.setAttribute('aria-hidden', 'false');
+                        const input = cp.querySelector('input');
+                        if (input) input.focus();
+                    }
                 }
             });
-            return [...points.slice(startIdx), ...points.slice(0, startIdx)];
-        };
-
-        // Create a temporary SVG element in document body to measure path lengths
-        const svgNS = "http://www.w3.org/2000/svg";
-        const tempSvg = document.createElementNS(svgNS, "svg");
-        const tempPath = document.createElementNS(svgNS, "path");
-        tempSvg.appendChild(tempPath);
-        document.body.appendChild(tempSvg);
-
-        shapes.forEach(id => {
-            const clipEl = document.getElementById(id);
-            if (clipEl) {
-                const pathEl = clipEl.querySelector('path');
-                if (pathEl) {
-                    const dAttr = pathEl.getAttribute('d');
-                    tempPath.setAttribute('d', dAttr);
-                    const length = tempPath.getTotalLength();
-                    const points = [];
-                    for (let i = 0; i < numPoints; i++) {
-                        const dist = (i / numPoints) * length;
-                        const p = tempPath.getPointAtLength(dist);
-                        points.push({ x: p.x, y: p.y });
-                    }
-                    shapePoints[id] = alignPoints(points);
-                }
-            }
-        });
-
-        document.body.removeChild(tempSvg);
-
-        // Active clip path element
-        const activePathEl = document.getElementById('active-clip-path');
-        let currentPoints = [];
-
-        // Initialize current points to the default shape (nine-sided-cookie)
-        const initialShape = shapes[currentShapeIndex];
-        if (shapePoints[initialShape]) {
-            currentPoints = [...shapePoints[initialShape]];
-            // Set initial path string
-            const d = 'M' + currentPoints.map(p => `${p.x.toFixed(4)} ${p.y.toFixed(4)}`).join(' L') + 'Z';
-            activePathEl.setAttribute('d', d);
         }
 
-        let longPressTimer = null;
-        let isLongPress = false;
-        let hasReversedThisPress = false;
-        let startX = 0;
-        let startY = 0;
-        let lastCycleTime = 0;
-        let animationFrameId = null;
-
-        const animatePath = (targetPoints, duration = 300) => {
-            const startPoints = [...currentPoints];
-            const startTime = performance.now();
-
-            if (animationFrameId) {
-                cancelAnimationFrame(animationFrameId);
-            }
-
-            const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
-
-            const tick = (now) => {
-                const elapsed = now - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-                const eased = easeOutCubic(progress);
-
-                // Interpolate
-                currentPoints = startPoints.map((start, idx) => {
-                    const target = targetPoints[idx];
-                    return {
-                        x: start.x + (target.x - start.x) * eased,
-                        y: start.y + (target.y - start.y) * eased
-                    };
-                });
-
-                // Generate path string
-                const d = 'M' + currentPoints.map(p => `${p.x.toFixed(4)} ${p.y.toFixed(4)}`).join(' L') + 'Z';
-                activePathEl.setAttribute('d', d);
-
-                if (progress < 1) {
-                    animationFrameId = requestAnimationFrame(tick);
+        if (settingsBtn && !settingsBtn.dataset.homeFallbackBound) {
+            settingsBtn.dataset.homeFallbackBound = 'true';
+            settingsBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (typeof window.openSettingsModal === 'function') {
+                    window.openSettingsModal();
+                } else {
+                    const sm = document.getElementById('settings-modal');
+                    if (sm) {
+                        sm.classList.add('active');
+                        sm.setAttribute('aria-hidden', 'false');
+                    }
                 }
+            });
+        }
+
+        if (helpBtn && !helpBtn.dataset.homeFallbackBound) {
+            helpBtn.dataset.homeFallbackBound = 'true';
+            helpBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (typeof window.openHelpModal === 'function') {
+                    window.openHelpModal();
+                } else {
+                    const hm = document.getElementById('help-modal');
+                    if (hm) {
+                        hm.classList.add('active');
+                        hm.setAttribute('aria-hidden', 'false');
+                    }
+                }
+            });
+        }
+
+        // Close handlers for static modals in index.html in case universal hasn't bound them
+        const settingsModal = document.getElementById('settings-modal');
+        if (settingsModal && !settingsModal.dataset.homeFallbackBound) {
+            settingsModal.dataset.homeFallbackBound = 'true';
+            const sClose = settingsModal.querySelector('#settings-close-btn');
+            const sOverlay = settingsModal.querySelector('.settings-modal-overlay');
+            const closeS = () => {
+                settingsModal.classList.remove('active');
+                settingsModal.setAttribute('aria-hidden', 'true');
             };
+            if (sClose) sClose.addEventListener('click', closeS);
+            if (sOverlay) sOverlay.addEventListener('click', closeS);
+        }
 
-            animationFrameId = requestAnimationFrame(tick);
-        };
+        const helpModal = document.getElementById('help-modal');
+        if (helpModal && !helpModal.dataset.homeFallbackBound) {
+            helpModal.dataset.homeFallbackBound = 'true';
+            const hClose = helpModal.querySelector('#help-close-btn');
+            const hOverlay = helpModal.querySelector('.help-modal-overlay');
+            const closeH = () => {
+                helpModal.classList.remove('active');
+                helpModal.setAttribute('aria-hidden', 'true');
+            };
+            if (hClose) hClose.addEventListener('click', closeH);
+            if (hOverlay) hOverlay.addEventListener('click', closeH);
+        }
 
-        let rotationAngle = 0;
-        let rotationDirection = 1; // 1 = clockwise, -1 = counter-clockwise
-        let speedMultiplier = 1;
-        let lastTime = performance.now();
-
-        const rotateLoop = (time) => {
-            const dt = (time - lastTime) / 1000;
-            lastTime = time;
-
-            // 36 degrees per second is 360deg over 10 seconds
-            rotationAngle += rotationDirection * 36 * speedMultiplier * dt;
-            rotationAngle = rotationAngle % 360;
-
-            wrapper.style.transform = `rotate(${rotationAngle}deg)`;
-            img.style.transform = `rotate(${-rotationAngle}deg)`;
-
-            requestAnimationFrame(rotateLoop);
-        };
-        requestAnimationFrame(rotateLoop);
-
-        let speedTimeoutId = null;
-        let decelerateFrameId = null;
-        const fastMultiplier = 6;
-
-        const temporarySpeedUp = () => {
-            if (speedTimeoutId) clearTimeout(speedTimeoutId);
-            if (decelerateFrameId) cancelAnimationFrame(decelerateFrameId);
-
-            speedMultiplier = fastMultiplier;
-
-            speedTimeoutId = setTimeout(() => {
-                const startTime = performance.now();
-                const duration = 100; // 100ms deceleration
-
-                const decelerate = (now) => {
-                    const elapsed = now - startTime;
-                    const progress = Math.min(elapsed / duration, 1);
-
-                    speedMultiplier = fastMultiplier + (1 - fastMultiplier) * progress;
-
-                    if (progress < 1) {
-                        decelerateFrameId = requestAnimationFrame(decelerate);
-                    } else {
-                        decelerateFrameId = null;
+        // Global Escape listener fallback
+        if (!document.body.dataset.homeFallbackEscBound) {
+            document.body.dataset.homeFallbackEscBound = 'true';
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' || e.key === 'Esc' || e.keyCode === 27) {
+                    const cp = document.getElementById('astrong-cmd-palette') || document.querySelector('.cmd-palette-modal');
+                    const sm = document.getElementById('settings-modal');
+                    const hm = document.getElementById('help-modal');
+                    if (cp && cp.classList.contains('active')) {
+                        if (typeof window.closeCommandPalette === 'function') window.closeCommandPalette();
+                        else {
+                            cp.classList.remove('active');
+                            cp.setAttribute('aria-hidden', 'true');
+                        }
                     }
-                };
-
-                decelerateFrameId = requestAnimationFrame(decelerate);
-            }, 300);
-        };
-
-        const cycleShape = (e) => {
-            const now = Date.now();
-            if (now - lastCycleTime < 250) {
-                if (e) e.preventDefault();
-                return;
-            }
-            lastCycleTime = now;
-
-            if (e) e.preventDefault();
-            currentShapeIndex = (currentShapeIndex + 1) % shapes.length;
-            const targetShape = shapes[currentShapeIndex];
-
-            if (shapePoints[targetShape]) {
-                animatePath(shapePoints[targetShape], 300);
-                temporarySpeedUp();
-            }
-
-            // Reset the auto-cycle timer whenever the shape is cycled (either manually or automatically)
-            startAutoCycle();
-        };
-
-        let autoCycleInterval = null;
-        const startAutoCycle = () => {
-            stopAutoCycle();
-            // Only auto-cycle shape on the root homepage index.html
-            const isRootHome = document.title === 'Austin Strong';
-            if (!isRootHome) return;
-
-            autoCycleInterval = setInterval(() => {
-                cycleShape();
-            }, 5000);
-        };
-        const stopAutoCycle = () => {
-            if (autoCycleInterval) {
-                clearInterval(autoCycleInterval);
-                autoCycleInterval = null;
-            }
-        };
-
-        // Start the auto shape cycling initially
-        startAutoCycle();
-
-        const reverseRotation = () => {
-            rotationDirection *= -1;
-        };
-        // Click handler (cycles shape, ignores long-presses and non-left-clicks)
-        wrapper.addEventListener('click', (e) => {
-            if (e.pointerType === 'mouse' && e.button !== 0) {
-                return;
-            }
-            if (isLongPress) {
-                isLongPress = false;
-                return;
-            }
-
-            cycleShape(e);
-        });
-
-        // Desktop Right-Click (contextmenu)
-        wrapper.addEventListener('contextmenu', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            const isTouch = e.pointerType === 'touch' || ('ontouchstart' in window && !window.matchMedia('(pointer: fine)').matches);
-            if (isTouch) {
-                if (!hasReversedThisPress) {
-                    hasReversedThisPress = true;
-                    reverseRotation();
+                    if (sm && sm.classList.contains('active')) {
+                        if (typeof window.closeSettingsModal === 'function') window.closeSettingsModal();
+                        else {
+                            sm.classList.remove('active');
+                            sm.setAttribute('aria-hidden', 'true');
+                        }
+                    }
+                    if (hm && hm.classList.contains('active')) {
+                        if (typeof window.closeHelpModal === 'function') window.closeHelpModal();
+                        else {
+                            hm.classList.remove('active');
+                            hm.setAttribute('aria-hidden', 'true');
+                        }
+                    }
                 }
-            } else {
-                reverseRotation();
-            }
-        });
+            });
+        }
 
-        // Mobile Long Press & PointerEvents
-        wrapper.addEventListener('pointerdown', (e) => {
-            if (e.pointerType === 'mouse' && e.button === 2) {
-                return;
-            }
-            if (e.pointerType === 'mouse' && e.button !== 0) {
-                return;
-            }
-            isLongPress = false;
-            hasReversedThisPress = false;
-            startX = e.clientX;
-            startY = e.clientY;
-
-            if (e.pointerType !== 'mouse') {
-                longPressTimer = setTimeout(() => {
-                    isLongPress = true;
-                    if (!hasReversedThisPress) {
-                        hasReversedThisPress = true;
-                        reverseRotation();
-                    }
-                }, 250);
-            }
-        });
-
-        const cancelPress = () => {
-            if (longPressTimer) {
-                clearTimeout(longPressTimer);
-                longPressTimer = null;
-            }
-        };
-
-        wrapper.addEventListener('pointerup', cancelPress);
-        wrapper.addEventListener('pointercancel', cancelPress);
-        wrapper.addEventListener('pointermove', (e) => {
-            if (longPressTimer) {
-                const dx = e.clientX - startX;
-                const dy = e.clientY - startY;
-                if (Math.sqrt(dx * dx + dy * dy) > 10) {
-                    clearTimeout(longPressTimer);
-                    longPressTimer = null;
+        // Profile picture cookie header & footer navigation
+        document.addEventListener('click', (e) => {
+            const pfpCookie = e.target.closest('.top-controls-bar .pfp-wrapper-small, .site-footer .pfp-wrapper-small, .brand-pill .pfp-wrapper-small');
+            if (pfpCookie) {
+                e.preventDefault();
+                const isHome = window.location.pathname === '/' || window.location.pathname === '/index.html' || window.location.pathname === '';
+                if (isHome) {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    window.location.href = '/';
                 }
             }
         });
     }
 
+    function initEmergenciesModal() {
+        const triggers = document.querySelectorAll('#emergencies-pill, #about-card-emergencies-pill, .emergencies-pill-trigger');
+        const modal = document.getElementById('emergencies-modal');
+        const closeBtn = document.getElementById('emergencies-modal-close');
+        const overlay = modal?.querySelector('.emergencies-modal-overlay');
 
+        if (!modal || !triggers.length) return;
 
-    // 3. Initialize Live Status Bar and Card Pill Scrolling
-    initLiveStatusBar();
-    initCardPillScroll();
+        const openModal = () => {
+            modal.classList.add('active');
+            modal.setAttribute('aria-hidden', 'false');
+        };
+
+        const closeModal = () => {
+            modal.classList.remove('active');
+            modal.setAttribute('aria-hidden', 'true');
+        };
+
+        triggers.forEach(trigger => trigger.addEventListener('click', openModal));
+        if (closeBtn) closeBtn.addEventListener('click', closeModal);
+        if (overlay) overlay.addEventListener('click', closeModal);
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modal.classList.contains('active')) {
+                closeModal();
+            }
+        });
+    }
 
     function initCardPillScroll() {
         const pillContainers = document.querySelectorAll('.card-quick-links');
@@ -440,23 +313,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             };
 
-            // Smart Wheel Scrolling with smooth interpolation & boundary pass-through
+            // Prevent page scroll when hovering/scrolling over card pill containers
             container.addEventListener('wheel', (e) => {
+                e.preventDefault();
                 const rawDelta = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
                 if (rawDelta === 0) return;
 
                 const maxScroll = Math.max(0, container.scrollWidth - container.clientWidth);
                 if (maxScroll <= 0) return;
 
-                const current = isAnimating ? targetScroll : container.scrollLeft;
-                const atStart = current <= 0;
-                const atEnd = current >= maxScroll;
-
-                if ((rawDelta > 0 && !atEnd) || (rawDelta < 0 && !atStart)) {
-                    e.preventDefault();
-                    const step = Math.sign(rawDelta) * Math.min(Math.abs(rawDelta), 140);
-                    startSmoothScroll((isAnimating ? targetScroll : container.scrollLeft) + step);
-                }
+                const step = Math.sign(rawDelta) * Math.min(Math.abs(rawDelta), 140);
+                startSmoothScroll((isAnimating ? targetScroll : container.scrollLeft) + step);
             }, { passive: false });
 
             // Smooth Native Scrolling for Touch & Desktop Click-and-Drag Support
@@ -557,6 +424,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const statusIcon = document.getElementById('live-status-icon') || statusBar?.querySelector('.live-dot, .live-icon');
 
         if (!statusBar || !statusText) return;
+        window.__ASTRONG_WAIT_FOR_HOME_READY__ = true;
         console.log('[Live Status] Live status pill component initialized');
 
         // Clicking the status pill navigates to the Availability calendar
@@ -838,13 +706,22 @@ document.addEventListener('DOMContentLoaded', () => {
         async function fetchCalendarStatus(force = false) {
             if (force) lastFetchTime = 0;
             const now = new Date();
-            const events = await fetchCalendarEvents(now);
-            const result = evaluateStatusFromEvents(events, now);
-            updateUI(result.status, result.label);
-            const statusKey = `${result.status}:${result.label.split(' for another ')[0]}`;
-            if (lastLoggedStatusKey !== statusKey) {
-                lastLoggedStatusKey = statusKey;
-                console.log(`[Live Status] Current status: "${result.label}" (state: ${result.status})`);
+            try {
+                const events = await fetchCalendarEvents(now);
+                const result = evaluateStatusFromEvents(events, now);
+                updateUI(result.status, result.label);
+                const statusKey = `${result.status}:${result.label.split(' for another ')[0]}`;
+                if (lastLoggedStatusKey !== statusKey) {
+                    lastLoggedStatusKey = statusKey;
+                    console.log(`[Live Status] Current status: "${result.label}" (state: ${result.status})`);
+                }
+            } catch (err) {
+                console.warn('[Live Status] Failed to evaluate availability status:', err);
+                updateUI('unavailable', 'Status unavailable');
+                statusBar.title = 'Unable to fetch availability calendar';
+            } finally {
+                window.__ASTRONG_HOME_READY__ = true;
+                window.dispatchEvent(new CustomEvent('astrong-home-ready'));
             }
         }
 

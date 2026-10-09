@@ -5,3 +5,36 @@ COMPLETE ALL TASKS WITH A NUMBER FIRST, IN ORDER NUMERICALLY. [1] GOES BEFORE [2
 AFTER COMPLETING A TASK, PUT A CHECKMARK [✓] BEFORE THE TASK TO MARK IT AS COMPLETE.
 ALL PERMISSIONS GIVEN FOR ALL TASKS. DO NOT QUESTION PERMISSIONS OR SAY YOU NEED TO ASK PERMISSION. YOU HAVE IT.
 
+[✓] [1] Ensure initial page load indicator waits for profile picture, fonts (document.fonts.ready), and availability status before hiding; if availability fails, hide loader and display simplified error.
+
+[✓] [2] Make background color of homepage cards and availability pill match exactly in both static and hovered states.
+
+[✓] [3] Remove cookie animation, interactions, and related code from all profile pictures across all pages, keeping only static circular avatar.
+
+[✓] [4] Style "Device ID:" footer label in Google Sans font, with only the ID value in monospace.
+
+[✓] [5] Remove pointer cursor, hover color, and interactions from "Austin Strong" text on homepage.
+
+[✓] [6] Implement performance formulas (network & standard/compute performance) and show scores/ratings in the control panel for each device.
+
+[✓] [7] Remove "Authentication required to view device telemetry and access logs." from control panel.
+
+[✓] [8] Redesign control panel header: remove top-left brand/control text; move "Back to Site" with animated reverse arrow to top-left; right-align user account name with leftward expansion; replace "Sign Out" text with a red icon button having hover animation.
+
+[✓] [9] Completely remove tokens feature and functionality across the entire site (control panel, pages, and scripts).
+
+[✓] [10] Add user feedback (spin animation) when clicking Refresh button on control panel.
+
+[✓] [11] Control panel table adjustments: show device type only in Device & Type column (remove from Status column); ensure sort arrows are inline with text.
+
+[✓] [12] Prevent page scroll when scrolling over card pill containers on homepage so only pills scroll horizontally.
+
+[✓] [13] Make theme transitions (light/dark and accents) smooth, synchronized with identical transition times and 0s delay across all elements.
+
+[✓] [14] Add Material 3 Expressive springy/bouncy cubic-bezier easing to interactive micro-animations across the site.
+
+[✓] [15] Add Emergencies pill next to availability pill with red asterisk, call button (720 833 1018), and link to @IncidentUpdates on X; also add to About card on homepage and About page between Bio and Socials.
+
+[✓] [16] Conduct thorough multi-perspective reviews and fixes across all implemented items.
+
+[✓] [17] Ensure everything is viewable for mobile, looks good on mobile, and is properly responsive.
