@@ -489,7 +489,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (isFree) continue;
 
                 const summary = (event.summary || '').trim().toLowerCase();
-                const isStarbucks = summary.includes('starbucks shift') || summary.includes('starbucks') || summary.includes('work');
+                const isStarbucks = summary.includes('starbucks shift');
                 const isSchool = event.__isFromSchoolCalendar || summary.includes('school') || (event.organizer && event.organizer.email && event.organizer.email.includes('school'));
                 const isCalendarBlock = summary.includes('calendar block');
                 const isUnavailable = isCalendarBlock || summary.includes('unavailable');
