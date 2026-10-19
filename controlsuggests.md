@@ -14,22 +14,22 @@ This document lists viable, high-value data points and device metrics that can b
 - **What it tracks**: Boolean flag indicating if the device is connected to multiple physical external monitors.
 - **Why it's useful**: Quickly identifies desktop workstation rigs vs. single-screen laptops and phones.
 
-### 3. Display HDR & Wide Color Gamut (P3)
+### 3. Display HDR & Wide Color Gamut (P3) `[Implemented]`
 - **API**: `window.matchMedia('(dynamic-range: high)').matches` & `window.matchMedia('(color-gamut: p3)').matches`
 - **What it tracks**: Detects if the device has a high-dynamic-range (HDR) display or Apple Display P3 wide-gamut panel (e.g. MacBook Liquid Retina XDR, iPhone OLED, high-end PC gaming monitors).
 - **Why it's useful**: Enhances hardware profiling and performance categorization.
 
-### 4. Storage Quota & Available Disk Space Bucket
+### 4. Storage Quota & Available Disk Space Bucket `[Implemented]`
 - **API**: `navigator.storage.estimate()`
 - **What it tracks**: Estimated disk storage quota assigned to the origin (e.g. 150 GB total quota, 45 MB used).
 - **Why it's useful**: Gives an approximate magnitude of the client device's total disk capacity without needing native system permissions.
 
-### 5. Input Device Modality & Pointer Precision
+### 5. Input Device Modality & Pointer Precision `[Implemented]`
 - **API**: `window.matchMedia('(pointer: fine)').matches`, `(hover: hover)`, and PointerEvent `pointerType`
 - **What it tracks**: Detects whether the user is navigating via precise mouse/trackpad (`fine`), touch (`coarse`), or digital stylus/pen (`pen` with pressure support).
 - **Why it's useful**: Accurately distinguishes tablets with keyboards/mice, touch-screen laptops, and dedicated mobile devices.
 
-### 6. Tab Visibility, Focus Dwell Time & Active Engagement
+### 6. Tab Visibility, Focus Dwell Time & Active Engagement `[Implemented]`
 - **API**: `document.visibilityState` & Page Visibility API timers
 - **What it tracks**: Total foreground active dwell time vs background tab duration (e.g. "Active: 4m 12s | Background: 22m 05s").
 - **Why it's useful**: Differentiates between someone actively reading your schedule/tools and someone who left the tab open in the background for hours.
@@ -39,7 +39,7 @@ This document lists viable, high-value data points and device metrics that can b
 - **What it tracks**: The maximum scroll percentage reached on each page visit (e.g. 25%, 50%, 75%, 100%) and whether specific interactive triggers (modals, search bars, shape cyclers) were activated.
 - **Why it's useful**: Shows how deeply a visitor engaged with page content before navigating away.
 
-### 8. WebGL Max Texture Size & Render Capabilities
+### 8. WebGL Max Texture Size & Render Capabilities `[Implemented]`
 - **API**: `gl.getParameter(gl.MAX_TEXTURE_SIZE)`, `gl.MAX_RENDERBUFFER_SIZE`, `gl.getSupportedExtensions()`
 - **What it tracks**: Maximum 2D texture dimensions (e.g. 16384px vs 8192px vs 4096px) and supported graphics extensions.
 - **Why it's useful**: Accurately classifies GPU tier (discrete high-end gaming GPU, Apple Metal silicon, budget mobile SoC, or software renderer).
