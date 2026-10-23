@@ -1,0 +1,960 @@
+# Antigravity Design System & Architecture Specification (`design.md`)
+
+**Version:** 3.0.0-Expressive
+
+**Target Agent:** Antigravity Autonomous Web Development & Vibecoding Engine
+
+**Design Paradigm:** Google Material 3 (M3) Expressive
+
+**Component Runtime:** Official `@material/web` Web Components (ESM)
+
+**Physics & Animation Engine:** `motion` (motion.dev)
+
+**Primary Seed Color:** `#8859ff` (Vibrant Electric Violet)
+
+## 1. System Philosophy & Expressive Rules
+
+Antigravity does not build generic, flat, or sterile interfaces. Every generated application—whether a developer utility, SaaS dashboard, or high-converting landing page—must strictly implement **Material 3 (M3) Expressive**. M3 Expressive prioritizes emotional resonance, tactile physical response, bold typographic hierarchy, and unambiguous tonal depth.
+
+### 1.1 Core Aesthetic Directives
+
+1. **Tonal Elevation Over Drop Shadows:**
+
+   * Never rely on heavy, muddy CSS `box-shadow` declarations to separate UI layers.
+
+   * Depth is communicated almost exclusively via **Surface Container Tonal Hierarchy** (`--md-sys-color-surface-container-lowest` up to `--md-sys-color-surface-container-highest`). Higher elevation equals a lighter, more chromatic surface tone in Dark Mode, and a subtly shifted contrasting tone in Light Mode.
+
+2. **Expressive Shape Morphing:**
+
+   * M3 Expressive relies on bold corner radii (`16px`, `24px`, `28px`, `9999px` pill shapes).
+
+   * Interactive containers and cards should dynamically morph their border-radius on hover, press, or active states (e.g., transitioning from a `24px` rounded rectangle to a `16px` or `32px` squircle during active pointer interaction).
+
+3. **Zero Re-Invention of Primitives:**
+
+   * **STRICT BAN:** Do not build custom HTML `<button class="btn">`, `<input type="text">`, custom checkboxes, or custom modal backdrops from scratch.
+
+   * Always use official `@material/web` custom elements (`<md-filled-button>`, `<md-outlined-text-field>`, `<md-switch>`, `<md-dialog>`, `<md-ripple>`, `<md-elevation>`).
+
+4. **High-Contrast Atmospheric Dark Mode:**
+
+   * Dark Mode (`[data-theme="dark"]`) is the default primary state of every Antigravity application. It uses deep obsidian-violet tinted surfaces (`#131218`) rather than pure `#000000` to preserve eye comfort and rich chromatic harmony with the `#8859ff` seed.
+
+5. **Generous Spatial Breathing Room:**
+
+   * Maintain a minimum padding of `24px` (`1.5rem`) inside primary cards and containers, and `16px` (`1rem`) minimum gap between grid items. Let the tonal surfaces breathe.
+
+### 1.2 Typographic Scale & Variable Font Pairing
+
+Antigravity pairs **Plus Jakarta Sans** (or **Google Sans** where licensed) for expressive display/headline geometry with **Roboto Flex** for high-legibility UI controls, body copy, and data tables, alongside **JetBrains Mono** for code/metrics.
+
+| Role | Token Name | Font Family | Size / Line-Height | Weight / Tracking | Usage | 
+| ----- | ----- | ----- | ----- | ----- | ----- | 
+| **Display Large** | `--md-sys-typescale-display-large` | `'Plus Jakarta Sans', sans-serif` | `3.5rem` (56px) / `4rem` (64px) | `700` / `-0.02em` | Hero statements, primary splash metrics | 
+| **Display Medium** | `--md-sys-typescale-display-medium` | `'Plus Jakarta Sans', sans-serif` | `2.75rem` (44px) / `3.25rem` (52px) | `700` / `-0.015em` | Section headers, key empty-state titles | 
+| **Headline Large** | `--md-sys-typescale-headline-large` | `'Plus Jakarta Sans', sans-serif` | `2rem` (32px) / `2.5rem` (40px) | `600` / `-0.01em` | Top-level view titles, modal headers | 
+| **Headline Medium** | `--md-sys-typescale-headline-medium` | `'Plus Jakarta Sans', sans-serif` | `1.75rem` (28px) / `2.25rem` (36px) | `600` / `0em` | Primary panel headings | 
+| **Title Large** | `--md-sys-typescale-title-large` | `'Plus Jakarta Sans', sans-serif` | `1.375rem` (22px) / `1.75rem` (28px) | `600` / `0em` | Card titles, navigation bar titles | 
+| **Title Medium** | `--md-sys-typescale-title-medium` | `'Roboto Flex', sans-serif` | `1rem` (16px) / `1.5rem` (24px) | `600` / `+0.01em` | Subheaders, interactive list item titles | 
+| **Body Large** | `--md-sys-typescale-body-large` | `'Roboto Flex', sans-serif` | `1rem` (16px) / `1.5rem` (24px) | `400` / `+0.015em` | Primary reading text, form inputs | 
+| **Body Medium** | `--md-sys-typescale-body-medium` | `'Roboto Flex', sans-serif` | `0.875rem` (14px) / `1.25rem` (20px) | `400` / `+0.015em` | Secondary descriptions, card subtitles | 
+| **Label Large** | `--md-sys-typescale-label-large` | `'Roboto Flex', sans-serif` | `0.875rem` (14px) / `1.25rem` (20px) | `600` / `+0.01em` | Button text, active tab labels, chips | 
+| **Label Small** | `--md-sys-typescale-label-small` | `'JetBrains Mono', monospace` | `0.6875rem` (11px) / `1rem` (16px) | `500` / `+0.04em` | Badges, status eyebrows, timestamps | 
+
+## 2. Setup & Import Map Specifications
+
+Every HTML document generated by Antigravity must include the following standardized `<head>` configuration. This provides variable fonts, Material Symbols Outlined (with variable fill/weight axes), the ESM `<script type="importmap">`, and resilient component registration guards.
+
+### 2.1 Mandatory `<head>` Boilerplate
+
+```
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Antigravity M3 Expressive Application</title>
+
+  <!-- 1. Google Fonts: Plus Jakarta Sans, Roboto Flex, JetBrains Mono & Material Symbols Outlined -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Roboto+Flex:opsz,wght@8..144,400;8..144,500;8..144,600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+
+  <!-- 2. CustomElementRegistry Idempotency Guard (Prevents Hot-Reload & Dynamic Re-Render Crashes) -->
+  <script>
+    (function installCustomElementGuard() {
+      if (window.__ANTIGRAVITY_CE_GUARD__) return;
+      window.__ANTIGRAVITY_CE_GUARD__ = true;
+      const originalDefine = window.customElements.define.bind(window.customElements);
+      window.customElements.define = function(name, constructor, options) {
+        if (window.customElements.get(name)) {
+          return; // Silently ignore duplicate registration
+        }
+        try {
+          originalDefine(name, constructor, options);
+        } catch (err) {
+          if (!String(err).includes('already been defined')) {
+            console.error(`[Antigravity CE Guard] Failed to define <${name}>:`, err);
+          }
+        }
+      };
+    })();
+  </script>
+
+  <!-- 3. Canonical ESM Import Map for @material/web and Motion -->
+  <script type="importmap">
+  {
+    "imports": {
+      "tslib": "https://cdn.jsdelivr.net/npm/tslib@2.6.3/+esm",
+      "lit": "https://cdn.jsdelivr.net/npm/lit@3.2.0/+esm",
+      "lit/": "https://cdn.jsdelivr.net/npm/lit@3.2.0/",
+      "@lit/reactive-element": "https://cdn.jsdelivr.net/npm/@lit/reactive-element@2.0.4/+esm",
+      "@lit/reactive-element/": "https://cdn.jsdelivr.net/npm/@lit/reactive-element@2.0.4/",
+      "lit-html": "https://cdn.jsdelivr.net/npm/lit-html@3.2.0/+esm",
+      "lit-html/": "https://cdn.jsdelivr.net/npm/lit-html@3.2.0/",
+      "lit-element/": "https://cdn.jsdelivr.net/npm/lit-element@4.1.0/",
+      "@material/web/": "https://cdn.jsdelivr.net/npm/@material/web@1.5.1/",
+      "@material/web/all.js": "https://cdn.jsdelivr.net/npm/@material/web@1.5.1/all.js/+esm",
+      "motion": "https://cdn.jsdelivr.net/npm/motion@11.11.13/+esm"
+    }
+  }
+  </script>
+
+  <!-- 4. Bootstrap Core Material Web Primitives -->
+  <script type="module">
+    import '@material/web/all.js';
+  </script>
+</head>
+
+```
+
+### 2.2 Selective Imports (Performance Optimization Rule)
+
+For performance-critical production views where loading `@material/web/all.js` is unnecessary, Antigravity may import individual component bundles using the mapped `@material/web/` prefix:
+
+```
+import '@material/web/button/filled-button.js';
+import '@material/web/button/filled-tonal-button.js';
+import '@material/web/button/outlined-button.js';
+import '@material/web/button/text-button.js';
+import '@material/web/iconbutton/icon-button.js';
+import '@material/web/iconbutton/filled-tonal-icon-button.js';
+import '@material/web/icon/icon.js';
+import '@material/web/textfield/filled-text-field.js';
+import '@material/web/textfield/outlined-text-field.js';
+import '@material/web/switch/switch.js';
+import '@material/web/checkbox/checkbox.js';
+import '@material/web/chips/chip-set.js';
+import '@material/web/chips/filter-chip.js';
+import '@material/web/chips/assist-chip.js';
+import '@material/web/dialog/dialog.js';
+import '@material/web/tabs/tabs.js';
+import '@material/web/tabs/primary-tab.js';
+import '@material/web/progress/linear-progress.js';
+import '@material/web/progress/circular-progress.js';
+import '@material/web/fab/fab.js';
+import '@material/web/ripple/ripple.js';
+import '@material/web/elevation/elevation.js';
+import '@material/web/focus/md-focus-ring.js';
+
+```
+
+## 3. Color System & Token Bridge
+
+The entire Antigravity color system is mathematically synthesized from the HCT seed **`#8859ff` (Vibrant Electric Violet)**.
+
+* **Primary Palette:** High-chroma Electric Violet (`Hue ~268°`)
+
+* **Secondary Palette:** Harmonized Lavender Slate (`Hue ~268°, lower chroma`)
+
+* **Tertiary Palette:** Expressive Cyber Magenta-Rose (`Hue ~328°`)
+
+* **Neutral & Surface Palettes:** Violet-tinted Obsidian (Dark) and Alabaster Mist (Light).
+
+### 3.1 Complete Stylesheet: Tonal Palettes, Theme Tokens & `@material/web` Bridge
+
+Copy and inject this foundational CSS block into every project:
+
+```
+:root {
+  /* ==========================================================================
+     1. RAW HCT TONAL REFERENCE PALETTES (Seed: #8859ff)
+     ========================================================================== */
+  /* Primary: Vibrant Electric Violet */
+  --md-ref-palette-primary0: #000000;
+  --md-ref-palette-primary10: #23005c;
+  --md-ref-palette-primary20: #3c0091;
+  --md-ref-palette-primary30: #5516be;
+  --md-ref-palette-primary40: #6f3bd8;
+  --md-ref-palette-primary50: #8859ff; /* SEED */
+  --md-ref-palette-primary60: #a27cff;
+  --md-ref-palette-primary70: #bc9eff;
+  --md-ref-palette-primary80: #d3bbff;
+  --md-ref-palette-primary90: #ebddff;
+  --md-ref-palette-primary95: #f6eeff;
+  --md-ref-palette-primary99: #fffbff;
+  --md-ref-palette-primary100: #ffffff;
+
+  /* Secondary: Muted Lavender Slate */
+  --md-ref-palette-secondary10: #1e192b;
+  --md-ref-palette-secondary20: #332d41;
+  --md-ref-palette-secondary30: #4a4458;
+  --md-ref-palette-secondary40: #625b71;
+  --md-ref-palette-secondary60: #958da5;
+  --md-ref-palette-secondary80: #ccc2dc;
+  --md-ref-palette-secondary90: #e8def8;
+  --md-ref-palette-secondary95: #f6eeff;
+
+  /* Tertiary: Expressive Rose-Magenta */
+  --md-ref-palette-tertiary10: #311028;
+  --md-ref-palette-tertiary20: #49253e;
+  --md-ref-palette-tertiary30: #633b55;
+  --md-ref-palette-tertiary40: #7d526d;
+  --md-ref-palette-tertiary80: #efb8d8;
+  --md-ref-palette-tertiary90: #ffd8ec;
+
+  /* Error: Semantic Crimson */
+  --md-ref-palette-error10: #410e0b;
+  --md-ref-palette-error20: #601410;
+  --md-ref-palette-error30: #8c1d18;
+  --md-ref-palette-error40: #b3261e;
+  --md-ref-palette-error80: #f2b8b5;
+  --md-ref-palette-error90: #f9dedc;
+
+  /* ==========================================================================
+     2. TYPOGRAPHY & SHAPE SYSTEM TOKENS
+     ========================================================================== */
+  --md-sys-typescale-font-brand: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --md-sys-typescale-font-plain: 'Roboto Flex', -apple-system, BlinkMacSystemFont, sans-serif;
+  --md-sys-typescale-font-mono: 'JetBrains Mono', monospace;
+
+  --md-sys-shape-corner-none: 0px;
+  --md-sys-shape-corner-extra-small: 4px;
+  --md-sys-shape-corner-small: 8px;
+  --md-sys-shape-corner-medium: 14px;
+  --md-sys-shape-corner-large: 20px;
+  --md-sys-shape-corner-extra-large: 28px;
+  --md-sys-shape-corner-full: 9999px;
+
+  /* CSS Fallback Expressive Easing Curves */
+  --md-sys-motion-easing-expressive-spatial: cubic-bezier(0.34, 1.45, 0.64, 1);
+  --md-sys-motion-easing-expressive-snappy: cubic-bezier(0.22, 1.15, 0.36, 1);
+  --md-sys-motion-easing-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1.0);
+  --md-sys-motion-easing-standard: cubic-bezier(0.2, 0.0, 0, 1.0);
+}
+
+/* ==========================================================================
+   3. DARK THEME TOKENS (DEFAULT MODE: [data-theme="dark"])
+   ========================================================================== */
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Primary */
+  --md-sys-color-primary: #d3bbff;
+  --md-sys-color-on-primary: #3c0091;
+  --md-sys-color-primary-container: #5516be;
+  --md-sys-color-on-primary-container: #ebddff;
+  --md-sys-color-primary-fixed: #ebddff;
+  --md-sys-color-primary-fixed-dim: #d3bbff;
+  --md-sys-color-on-primary-fixed: #23005c;
+  --md-sys-color-accent-vivid: #8859ff;
+
+  /* Secondary */
+  --md-sys-color-secondary: #ccc2dc;
+  --md-sys-color-on-secondary: #332d41;
+  --md-sys-color-secondary-container: #4a4458;
+  --md-sys-color-on-secondary-container: #e8def8;
+
+  /* Tertiary */
+  --md-sys-color-tertiary: #efb8d8;
+  --md-sys-color-on-tertiary: #49253e;
+  --md-sys-color-tertiary-container: #633b55;
+  --md-sys-color-on-tertiary-container: #ffd8ec;
+
+  /* Error & Extended Status */
+  --md-sys-color-error: #f2b8b5;
+  --md-sys-color-on-error: #601410;
+  --md-sys-color-error-container: #8c1d18;
+  --md-sys-color-on-error-container: #f9dedc;
+  --md-sys-color-success: #7bd89f;
+  --md-sys-color-on-success: #00391c;
+  --md-sys-color-success-container: #00522b;
+  --md-sys-color-on-success-container: #97f5b9;
+  --md-sys-color-warning: #ffba49;
+  --md-sys-color-on-warning: #432c00;
+
+  /* Surfaces & Tonal Hierarchy (1-5) */
+  --md-sys-color-background: #131218;
+  --md-sys-color-on-background: #e6e0e9;
+  --md-sys-color-surface: #131218;
+  --md-sys-color-surface-dim: #131218;
+  --md-sys-color-surface-bright: #39383f;
+  --md-sys-color-surface-container-lowest: #0e0d13;  /* Level 0: Canvas wells, code blocks */
+  --md-sys-color-surface-container-low: #1c1a22;     /* Level 1: Primary section containers */
+  --md-sys-color-surface-container: #201e26;         /* Level 2: Standard cards, sidebars */
+  --md-sys-color-surface-container-high: #2a2831;    /* Level 3: Hover cards, elevated bars */
+  --md-sys-color-surface-container-highest: #35333c; /* Level 4: Modals, popovers, active chips */
+  --md-sys-color-on-surface: #e6e0e9;
+  --md-sys-color-on-surface-variant: #cac4d0;
+  --md-sys-color-surface-variant: #49454f;
+  --md-sys-color-surface-tint: #d3bbff;
+
+  /* Inverse & Outlines */
+  --md-sys-color-inverse-surface: #e6e0e9;
+  --md-sys-color-inverse-on-surface: #312f36;
+  --md-sys-color-inverse-primary: #6f3bd8;
+  --md-sys-color-outline: #948f99;
+  --md-sys-color-outline-variant: #49454f;
+  --md-sys-color-scrim: rgba(0, 0, 0, 0.65);
+  --md-sys-color-shadow: #000000;
+}
+
+/* ==========================================================================
+   4. LIGHT THEME TOKENS ([data-theme="light"])
+   ========================================================================== */
+[data-theme="light"] {
+  color-scheme: light;
+
+  /* Primary */
+  --md-sys-color-primary: #6f3bd8;
+  --md-sys-color-on-primary: #ffffff;
+  --md-sys-color-primary-container: #ebddff;
+  --md-sys-color-on-primary-container: #23005c;
+  --md-sys-color-primary-fixed: #ebddff;
+  --md-sys-color-primary-fixed-dim: #d3bbff;
+  --md-sys-color-on-primary-fixed: #23005c;
+  --md-sys-color-accent-vivid: #8859ff;
+
+  /* Secondary */
+  --md-sys-color-secondary: #625b71;
+  --md-sys-color-on-secondary: #ffffff;
+  --md-sys-color-secondary-container: #e8def8;
+  --md-sys-color-on-secondary-container: #1e192b;
+
+  /* Tertiary */
+  --md-sys-color-tertiary: #7d526d;
+  --md-sys-color-on-tertiary: #ffffff;
+  --md-sys-color-tertiary-container: #ffd8ec;
+  --md-sys-color-on-tertiary-container: #311028;
+
+  /* Error & Extended Status */
+  --md-sys-color-error: #b3261e;
+  --md-sys-color-on-error: #ffffff;
+  --md-sys-color-error-container: #f9dedc;
+  --md-sys-color-on-error-container: #410e0b;
+  --md-sys-color-success: #146c3a;
+  --md-sys-color-on-success: #ffffff;
+  --md-sys-color-success-container: #97f5b9;
+  --md-sys-color-on-success-container: #00210e;
+  --md-sys-color-warning: #7d5700;
+  --md-sys-color-on-warning: #ffffff;
+
+  /* Surfaces & Tonal Hierarchy (1-5) */
+  --md-sys-color-background: #fdf7ff;
+  --md-sys-color-on-background: #1d1b20;
+  --md-sys-color-surface: #fdf7ff;
+  --md-sys-color-surface-dim: #ded8e0;
+  --md-sys-color-surface-bright: #fdf7ff;
+  --md-sys-color-surface-container-lowest: #ffffff;  /* Level 0: Crisp elevated islands */
+  --md-sys-color-surface-container-low: #f7f1fa;     /* Level 1: Subtle page sections */
+  --md-sys-color-surface-container: #f2ecf4;         /* Level 2: Standard cards, navigation */
+  --md-sys-color-surface-container-high: #ece6ef;    /* Level 3: Hover states, active panels */
+  --md-sys-color-surface-container-highest: #e6e0e9; /* Level 4: Input fills, deep wells */
+  --md-sys-color-on-surface: #1d1b20;
+  --md-sys-color-on-surface-variant: #49454f;
+  --md-sys-color-surface-variant: #e7e0eb;
+  --md-sys-color-surface-tint: #6f3bd8;
+
+  /* Inverse & Outlines */
+  --md-sys-color-inverse-surface: #312f36;
+  --md-sys-color-inverse-on-surface: #f5eff7;
+  --md-sys-color-inverse-primary: #d3bbff;
+  --md-sys-color-outline: #7a757f;
+  --md-sys-color-outline-variant: #cac4cf;
+  --md-sys-color-scrim: rgba(29, 27, 32, 0.45);
+  --md-sys-color-shadow: #000000;
+}
+
+/* ==========================================================================
+   5. @material/web COMPONENT-LEVEL CSS TOKEN BRIDGE
+   ========================================================================== */
+:root,
+[data-theme="dark"],
+[data-theme="light"] {
+  /* Global Typography Binding */
+  --md-ref-typeface-brand: var(--md-sys-typescale-font-brand);
+  --md-ref-typeface-plain: var(--md-sys-typescale-font-plain);
+
+  /* Focus Ring */
+  --md-focus-ring-color: var(--md-sys-color-primary);
+  --md-focus-ring-width: 3px;
+
+  /* Filled Button */
+  --md-filled-button-container-color: var(--md-sys-color-primary);
+  --md-filled-button-label-text-color: var(--md-sys-color-on-primary);
+  --md-filled-button-hover-label-text-color: var(--md-sys-color-on-primary);
+  --md-filled-button-pressed-label-text-color: var(--md-sys-color-on-primary);
+  --md-filled-button-container-shape: var(--md-sys-shape-corner-full);
+  --md-filled-button-label-text-font: var(--md-sys-typescale-font-plain);
+  --md-filled-button-label-text-weight: 600;
+
+  /* Filled Tonal Button */
+  --md-filled-tonal-button-container-color: var(--md-sys-color-secondary-container);
+  --md-filled-tonal-button-label-text-color: var(--md-sys-color-on-secondary-container);
+  --md-filled-tonal-button-container-shape: var(--md-sys-shape-corner-full);
+  --md-filled-tonal-button-label-text-weight: 600;
+
+  /* Outlined Button */
+  --md-outlined-button-label-text-color: var(--md-sys-color-primary);
+  --md-outlined-button-outline-color: var(--md-sys-color-outline);
+  --md-outlined-button-container-shape: var(--md-sys-shape-corner-full);
+  --md-outlined-button-label-text-weight: 600;
+
+  /* Text Button */
+  --md-text-button-label-text-color: var(--md-sys-color-primary);
+  --md-text-button-container-shape: var(--md-sys-shape-corner-full);
+
+  /* FAB (Floating Action Button) */
+  --md-fab-container-color: var(--md-sys-color-primary-container);
+  --md-fab-icon-color: var(--md-sys-color-on-primary-container);
+  --md-fab-label-text-color: var(--md-sys-color-on-primary-container);
+  --md-fab-container-shape: 20px;
+
+  /* Switch */
+  --md-switch-selected-track-color: var(--md-sys-color-primary);
+  --md-switch-selected-handle-color: var(--md-sys-color-on-primary);
+  --md-switch-selected-icon-color: var(--md-sys-color-on-primary-container);
+  --md-switch-track-color: var(--md-sys-color-surface-container-highest);
+  --md-switch-track-outline-color: var(--md-sys-color-outline);
+  --md-switch-handle-color: var(--md-sys-color-outline);
+
+  /* Checkbox */
+  --md-checkbox-selected-container-color: var(--md-sys-color-primary);
+  --md-checkbox-selected-icon-color: var(--md-sys-color-on-primary);
+  --md-checkbox-outline-color: var(--md-sys-color-on-surface-variant);
+
+  /* Filled Text Field */
+  --md-filled-text-field-container-color: var(--md-sys-color-surface-container-highest);
+  --md-filled-text-field-focus-active-indicator-color: var(--md-sys-color-primary);
+  --md-filled-text-field-input-text-color: var(--md-sys-color-on-surface);
+  --md-filled-text-field-label-text-color: var(--md-sys-color-on-surface-variant);
+  --md-filled-text-field-focus-label-text-color: var(--md-sys-color-primary);
+  --md-filled-text-field-container-shape: 12px;
+
+  /* Outlined Text Field */
+  --md-outlined-text-field-outline-color: var(--md-sys-color-outline);
+  --md-outlined-text-field-focus-outline-color: var(--md-sys-color-primary);
+  --md-outlined-text-field-input-text-color: var(--md-sys-color-on-surface);
+  --md-outlined-text-field-label-text-color: var(--md-sys-color-on-surface-variant);
+  --md-outlined-text-field-focus-label-text-color: var(--md-sys-color-primary);
+  --md-outlined-text-field-container-shape: 12px;
+
+  /* Dialog */
+  --md-dialog-container-color: var(--md-sys-color-surface-container-high);
+  --md-dialog-headline-color: var(--md-sys-color-on-surface);
+  --md-dialog-supporting-text-color: var(--md-sys-color-on-surface-variant);
+  --md-dialog-container-shape: var(--md-sys-shape-corner-extra-large);
+
+  /* Chips */
+  --md-filter-chip-container-shape: 10px;
+  --md-filter-chip-selected-container-color: var(--md-sys-color-secondary-container);
+  --md-filter-chip-selected-label-text-color: var(--md-sys-color-on-secondary-container);
+  --md-filter-chip-outline-color: var(--md-sys-color-outline-variant);
+  --md-assist-chip-container-shape: 10px;
+  --md-assist-chip-label-text-color: var(--md-sys-color-on-surface);
+
+  /* Tabs */
+  --md-primary-tab-container-color: transparent;
+  --md-primary-tab-active-indicator-color: var(--md-sys-color-primary);
+  --md-primary-tab-active-label-text-color: var(--md-sys-color-primary);
+  --md-primary-tab-label-text-color: var(--md-sys-color-on-surface-variant);
+
+  /* Progress Indicators */
+  --md-linear-progress-active-indicator-color: var(--md-sys-color-primary);
+  --md-linear-progress-track-color: var(--md-sys-color-surface-container-highest);
+  --md-linear-progress-track-shape: 9999px;
+  --md-circular-progress-active-indicator-color: var(--md-sys-color-primary);
+}
+
+```
+
+### 3.2 Standardized Dynamic Theme Controller
+
+Antigravity must wire theme switching cleanly on the root `<html>` node (`document.documentElement`) and persist user preference in `localStorage`:
+
+```
+export function initThemeController(toggleElementSelector = '#theme-toggle') {
+  const root = document.documentElement;
+  const savedTheme = localStorage.getItem('ag-theme') || 'dark';
+  root.setAttribute('data-theme', savedTheme);
+
+  const toggleEl = document.querySelector(toggleElementSelector);
+  if (!toggleEl) return;
+
+  // Sync initial state if using <md-switch>
+  if (toggleEl.tagName.toLowerCase() === 'md-switch') {
+    toggleEl.selected = savedTheme === 'dark';
+  }
+
+  toggleEl.addEventListener('change', () => {
+    const nextTheme = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', nextTheme);
+    localStorage.setItem('ag-theme', nextTheme);
+    window.dispatchEvent(new CustomEvent('ag:theme-change', { detail: { theme: nextTheme } }));
+  });
+}
+
+```
+
+## 4. Motion Guidelines & Spring Presets
+
+M3 Expressive rejects linear or sluggish fixed-duration animations. All spatial movements, micro-interactions, and layout transitions must use **real spring physics** via the `motion` (`motion.dev`) library so that velocity is preserved when a user interrupts an animation mid-flight.
+
+### 4.1 Canonical M3 Expressive Spring Configuration Dictionary
+
+```
+import { animate, stagger } from 'motion';
+
+export const M3_SPRINGS = {
+  /**
+   * 1. EXPRESSIVE BOUNCY (Micro-interactions, tactile buttons, cards, badges, toggles)
+   * High energy with deliberate, playful overshoot (~12-15% bounce).
+   */
+  expressiveBouncy: {
+    type: 'spring',
+    stiffness: 520,
+    damping: 22,
+    mass: 0.85,
+    restSpeed: 0.01
+  },
+
+  /**
+   * 2. EXPRESSIVE SPATIAL (Hero expansions, shared-axis layout shifts, morphing cards)
+   * Rich physical momentum with a gentle, organic settle.
+   */
+  expressiveSpatial: {
+    type: 'spring',
+    stiffness: 340,
+    damping: 26,
+    mass: 1.0,
+    restSpeed: 0.01
+  },
+
+  /**
+   * 3. SNAPPY SPATIAL (Side sheets, drawers, dialogs, dropdown menus, command palettes)
+   * Crisp arrival with minimal overshoot so reading text isn't delayed.
+   */
+  snappySpatial: {
+    type: 'spring',
+    stiffness: 460,
+    damping: 36,
+    mass: 0.9,
+    restSpeed: 0.01
+  },
+
+  /**
+   * 4. GENTLE AMBIENT (Background aura shifts, large chart bars, progress fills)
+   * Critically damped, fluid deceleration.
+   */
+  gentleAmbient: {
+    type: 'spring',
+    stiffness: 180,
+    damping: 28,
+    mass: 1.2,
+    restSpeed: 0.005
+  }
+};
+
+```
+
+### 4.2 Momentum & Gesture Interruption Recipes
+
+When users rapidly hover, press, release, or re-click an element, never reset CSS keyframes or snap to `0`. Always pass target values directly to `animate()` from `motion`, which automatically inherits the active velocity of any in-flight spring.
+
+```
+import { animate, stagger } from 'motion';
+import { M3_SPRINGS } from './motion-presets.js';
+
+/**
+ * Recipe A: Interruptible Expressive Surface Card (Hover + Press + Shape Morph)
+ * Smoothly preserves momentum even if the user rapidly clicks or sweeps across cards.
+ */
+export function attachExpressiveSurfacePhysics(selector = '.ag-interactive-card') {
+  const elements = document.querySelectorAll(selector);
+
+  elements.forEach((el) => {
+    el.addEventListener('pointerenter', () => {
+      animate(
+        el,
+        { scale: 1.018, y: -4, borderRadius: '28px' },
+        M3_SPRINGS.expressiveBouncy
+      );
+    });
+
+    el.addEventListener('pointerleave', () => {
+      animate(
+        el,
+        { scale: 1, y: 0, borderRadius: '20px' },
+        M3_SPRINGS.snappySpatial
+      );
+    });
+
+    el.addEventListener('pointerdown', () => {
+      // Immediate high-stiffness compression; inherits velocity from pointerenter
+      animate(
+        el,
+        { scale: 0.975, y: 1, borderRadius: '16px' },
+        { type: 'spring', stiffness: 700, damping: 30, mass: 0.6 }
+      );
+    });
+
+    el.addEventListener('pointerup', () => {
+      animate(
+        el,
+        { scale: 1.018, y: -4, borderRadius: '28px' },
+        M3_SPRINGS.expressiveBouncy
+      );
+    });
+  });
+}
+
+/**
+ * Recipe B: Staggered Container Entrance Cascade
+ * Call when mounting dashboard widgets, list items, or search results.
+ */
+export function animateCascadeIn(itemSelector = '.ag-stagger-item') {
+  const items = document.querySelectorAll(itemSelector);
+  if (!items.length) return;
+
+  animate(
+    items,
+    { opacity: [0, 1], y: [24, 0], scale: [0.96, 1] },
+    {
+      ...M3_SPRINGS.expressiveSpatial,
+      delay: stagger(0.045, { start: 0.02 })
+    }
+  );
+}
+
+/**
+ * Recipe C: Interruptible Side Sheet / Drawer Controller
+ * Can be toggled mid-flight without visual jumping.
+ */
+export function toggleExpressiveSheet(sheetEl, scrimEl, isOpen) {
+  if (isOpen) {
+    scrimEl.style.pointerEvents = 'auto';
+    animate(scrimEl, { opacity: 1 }, { duration: 0.2 });
+    animate(sheetEl, { x: '0%' }, M3_SPRINGS.snappySpatial);
+  } else {
+    scrimEl.style.pointerEvents = 'none';
+    animate(scrimEl, { opacity: 0 }, { duration: 0.18 });
+    animate(sheetEl, { x: '100%' }, M3_SPRINGS.snappySpatial);
+  }
+}
+
+```
+
+### 4.3 Reduced Motion Safeguard
+
+Always respect OS-level accessibility preferences:
+
+```
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+```
+
+## 5. Component Standards & Usage Patterns
+
+Antigravity must strictly use `@material/web` components for interactive primitives and bind them via standard DOM properties and events.
+
+### 5.1 Buttons & Icon Buttons
+
+Use the 4-level M3 button hierarchy according to action priority:
+
+1. `<md-filled-button>`: Single highest-priority primary CTA in a view or card.
+
+2. `<md-filled-tonal-button>`: High-emphasis secondary actions (e.g., "Duplicate", "Export", "Run").
+
+3. `<md-outlined-button>`: Medium-emphasis alternative actions.
+
+4. `<md-text-button>`: Low-emphasis actions, dialog dismissals, inline links.
+
+```
+<!-- Primary CTA with leading icon -->
+<md-filled-button id="deploy-btn">
+  <md-icon slot="icon">rocket_launch</md-icon>
+  Deploy Pipeline
+</md-filled-button>
+
+<!-- Secondary Tonal Action -->
+<md-filled-tonal-button id="preview-btn">
+  <md-icon slot="icon">visibility</md-icon>
+  Live Preview
+</md-filled-button>
+
+<!-- Outlined Action -->
+<md-outlined-button id="logs-btn">
+  View Build Logs
+</md-outlined-button>
+
+<!-- Expressive Toggle Icon Button -->
+<md-filled-tonal-icon-button toggle aria-label="Bookmark workspace">
+  <md-icon>bookmark</md-icon>
+  <md-icon slot="selected">bookmark_check</md-icon>
+</md-filled-tonal-icon-button>
+
+```
+
+### 5.2 Text Fields & Form Controls
+
+Always pair `<md-outlined-text-field>` or `<md-filled-text-field>` with leading/trailing `<md-icon>` slots and native validation or `supporting-text`. Read values via `field.value` on `input` or `change` events.
+
+```
+<div class="ag-form-group">
+  <md-outlined-text-field
+    id="endpoint-input"
+    label="Inference Endpoint URL"
+    type="url"
+    placeholder="https://api.antigravity.dev/v1/stream"
+    supporting-text="Must use HTTPS with TLS 1.3"
+    required>
+    <md-icon slot="leading-icon">dns</md-icon>
+    <md-icon-button slot="trailing-icon" id="clear-endpoint-btn" aria-label="Clear input">
+      <md-icon>close</md-icon>
+    </md-icon-button>
+  </md-outlined-text-field>
+</div>
+
+<script type="module">
+  const input = document.getElementById('endpoint-input');
+  const clearBtn = document.getElementById('clear-endpoint-btn');
+
+  clearBtn.addEventListener('click', () => {
+    input.value = '';
+    input.reportValidity();
+    input.focus();
+  });
+</script>
+
+```
+
+### 5.3 Switches & Checkboxes
+
+Read state via the boolean `.selected` property on `<md-switch>` and `.checked` on `<md-checkbox>`.
+
+```
+<label class="ag-control-row">
+  <div class="ag-control-meta">
+    <span class="ag-title-medium">Autonomous Self-Healing</span>
+    <span class="ag-body-medium">Automatically patch failed edge deployments</span>
+  </div>
+  <md-switch id="auto-heal-switch" selected icons></md-switch>
+</label>
+
+<script type="module">
+  const autoHealSwitch = document.getElementById('auto-heal-switch');
+  autoHealSwitch.addEventListener('change', (e) => {
+    const isEnabled = e.currentTarget.selected;
+    console.log('Autonomous Self-Healing:', isEnabled);
+  });
+</script>
+
+```
+
+### 5.4 Chip Sets (`<md-chip-set>`, `<md-filter-chip>`, `<md-assist-chip>`)
+
+Use `<md-filter-chip>` for multi-select or single-select filtering, and `<md-assist-chip>` for quick contextual actions or AI prompt suggestions.
+
+```
+<md-chip-set aria-label="Filter telemetry by environment">
+  <md-filter-chip label="Production" selected></md-filter-chip>
+  <md-filter-chip label="Staging" selected></md-filter-chip>
+  <md-filter-chip label="Canary Edge"></md-filter-chip>
+  <md-assist-chip label="Synthesize Report">
+    <md-icon slot="icon">auto_awesome</md-icon>
+  </md-assist-chip>
+</md-chip-set>
+
+```
+
+### 5.5 Dialogs (`<md-dialog>`)
+
+Never construct custom modal backdrops when a standard confirmation or form dialog is required. Use `<md-dialog>` with `slot="headline"`, `slot="content"`, and `slot="actions"`. Trigger via `.show()` and `.close()`.
+
+```
+<md-dialog id="confirm-purge-dialog">
+  <div slot="headline">Purge Edge Cache?</div>
+  <form id="purge-form" slot="content" method="dialog">
+    <p>This will invalidate 142 global PoP nodes for <strong>antigravity.app</strong>. Cold-start latency may spike for 15 seconds.</p>
+  </form>
+  <div slot="actions">
+    <md-text-button form="purge-form" value="cancel">Cancel</md-text-button>
+    <md-filled-button form="purge-form" value="confirm">
+      <md-icon slot="icon">bolt</md-icon>
+      Purge Global Nodes
+    </md-filled-button>
+  </div>
+</md-dialog>
+
+<script type="module">
+  const dialog = document.getElementById('confirm-purge-dialog');
+  // Open dialog: dialog.show();
+  dialog.addEventListener('close', () => {
+    if (dialog.returnValue === 'confirm') {
+      // Execute purge action
+    }
+  });
+</script>
+
+```
+
+### 5.6 Custom Interactive Surface Cards with `<md-ripple>` & `<md-focus-ring>`
+
+Because `@material/web` does not force a rigid `<md-card>` wrapper, Antigravity builds expressive M3 cards by combining tonal surface container classes with `<md-ripple>` and `<md-focus-ring>`.
+
+```
+<article class="ag-card ag-surface-container ag-interactive-card" tabindex="0">
+  <md-focus-ring style="--md-focus-ring-shape: 20px"></md-focus-ring>
+  <md-ripple></md-ripple>
+  <div class="ag-card-header">
+    <span class="ag-badge-primary">ACTIVE CLUSTER</span>
+    <md-icon>hub</md-icon>
+  </div>
+  <h3 class="ag-title-large">US-West Quantum Mesh</h3>
+  <p class="ag-body-medium">99.998% uptime over the last 30 days with sub-12ms p99 latency.</p>
+</article>
+
+```
+
+## 6. Layout & Surface Architecture
+
+### 6.1 The 5-Level Surface Nesting Hierarchy
+
+Antigravity achieves visual richness by strictly nesting surface tokens rather than drawing borders around everything:
+
+| Surface Level | CSS Variable | Canonical Architectural Role | 
+| ----- | ----- | ----- | 
+| **Canvas Base** | `--md-sys-color-background` | Root `<body>` background. | 
+| **Lowest (Level 0)** | `--md-sys-color-surface-container-lowest` | Recessed wells: code editors, terminal logs, canvas viewports, data table wells. | 
+| **Low (Level 1)** | `--md-sys-color-surface-container-low` | Large structural groupings: secondary sidebars, Bento grid wrapper panels. | 
+| **Default (Level 2)** | `--md-sys-color-surface-container` | Standard cards, primary navigation rail/drawer, persistent header bars. | 
+| **High (Level 3)** | `--md-sys-color-surface-container-high` | Hovered interactive cards, floating toolbars, active metric tiles, side sheets. | 
+| **Highest (Level 4)** | `--md-sys-color-surface-container-highest` | Filled inputs, switches/tracks, dialogs, tooltips, floating command palettes. | 
+
+**The Golden Nesting Rule:** Never place a surface container directly inside another container of the exact same level without either shifting at least 1 tonal step (e.g., `surface-container` card inside a `surface-container-low` section) or applying a subtle `1px solid var(--md-sys-color-outline-variant)` border.
+
+### 6.2 Canonical Layout & Utility CSS Classes
+
+```
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background-color: var(--md-sys-color-background);
+  color: var(--md-sys-color-on-background);
+  font-family: var(--md-sys-typescale-font-plain);
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* Surface Container Utilities */
+.ag-surface-lowest  { background-color: var(--md-sys-color-surface-container-lowest); }
+.ag-surface-low     { background-color: var(--md-sys-color-surface-container-low); }
+.ag-surface         { background-color: var(--md-sys-color-surface-container); }
+.ag-surface-high    { background-color: var(--md-sys-color-surface-container-high); }
+.ag-surface-highest { background-color: var(--md-sys-color-surface-container-highest); }
+
+/* Expressive Card Container */
+.ag-card {
+  position: relative;
+  border-radius: var(--md-sys-shape-corner-large);
+  padding: 24px;
+  border: 1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 45%, transparent);
+  overflow: hidden;
+  transition: background-color 0.2s var(--md-sys-motion-easing-standard),
+              border-color 0.2s var(--md-sys-motion-easing-standard);
+}
+
+.ag-card.ag-interactive-card {
+  cursor: pointer;
+}
+
+.ag-card.ag-interactive-card:hover {
+  background-color: var(--md-sys-color-surface-container-high);
+  border-color: color-mix(in srgb, var(--md-sys-color-primary) 50%, var(--md-sys-color-outline-variant));
+}
+
+/* Responsive 12-Column Bento Grid */
+.ag-bento-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 20px;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.ag-col-12 { grid-column: span 12; }
+.ag-col-8  { grid-column: span 8; }
+.ag-col-6  { grid-column: span 6; }
+.ag-col-4  { grid-column: span 4; }
+.ag-col-3  { grid-column: span 3; }
+
+@media (max-width: 1024px) {
+  .ag-col-8, .ag-col-6, .ag-col-4, .ag-col-3 {
+    grid-column: span 6;
+  }
+}
+
+@media (max-width: 640px) {
+  .ag-bento-grid {
+    gap: 16px;
+    padding: 16px;
+  }
+  .ag-col-8, .ag-col-6, .ag-col-4, .ag-col-3 {
+    grid-column: span 12;
+  }
+}
+
+/* Material Symbols Variable Icon Styling */
+md-icon {
+  font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+  transition: font-variation-settings 0.2s var(--md-sys-motion-easing-expressive-snappy);
+}
+
+.ag-interactive-card:hover md-icon,
+md-filled-button:hover md-icon {
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24;
+}
+
+```
+
+## 7. Antigravity Execution Checklist
+
+Before outputting or finalizing any web application, landing page, or component view, Antigravity **MUST** verify every item on this checklist:
+
+* \[ \] **1. Default Dark Theme & Seed Integrity:** Does `<html>` initialize with `data-theme="dark"` and use the exact `#8859ff` Electric Violet tonal palette variables (`--md-sys-color-*`) for both `[data-theme="dark"]` and `[data-theme="light"]`?
+
+* \[ \] **2. Import Map & Custom Element Guard Present:** Does the `<head>` include the CustomElementRegistry idempotency guard script and the ESM `<script type="importmap">` mapping `lit`, `@material/web/`, and `motion`?
+
+* \[ \] **3. Zero Reinvented Primitives:** Are all buttons, text inputs, switches, checkboxes, chips, tabs, progress bars, ripples, and dialogs built using official `<md-*>` tags rather than bespoke `<button>` or `<input>` elements?
+
+* \[ \] **4. Token Bridge Connected:** Are `--md-filled-button-*`, `--md-outlined-text-field-*`, `--md-switch-*`, and `--md-dialog-*` tokens explicitly bridged to `--md-sys-color-*` variables in CSS?
+
+* \[ \] **5. Tonal Hierarchy Over Drop Shadows:** Are UI layers separated using the 5-step Surface Container scale (`surface-container-lowest` to `surface-container-highest`) instead of heavy CSS drop shadows?
+
+* \[ \] **6. Physics-Driven Motion:** Are hover, press, sheet drawer, and entrance cascade animations powered by `motion` (`M3_SPRINGS.expressiveBouncy`, `expressiveSpatial`, `snappySpatial`) so rapid pointer interruptions preserve velocity smoothly?
+
+* \[ \] **7. Accessibility & Contrast Compliance:** Do all text pairings (`on-primary` on `primary`, `on-surface` on `surface-container`) meet WCAG AA/AAA contrast ratios in both Dark and Light modes, and do custom interactive cards include `<md-focus-ring>` and `tabindex="0"`?
